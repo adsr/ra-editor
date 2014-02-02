@@ -1,0 +1,55 @@
+#!/usr/bin/python
+
+import sys
+import os
+import pypm
+import time
+from ra_editor.editor import Editor
+from ra_editor.editor_view import EditorView
+from ra_editor.rack_attack import RackAttack
+
+RAE_VERSION = "0.1"
+
+pypm.Initialize()
+
+if len(sys.argv) < 3:
+    print "Usage: ./%s <in_device_num> <out_device_num>\n\nDevices:" % os.path.basename(__file__)
+    print "device_num", ("iface", "name", "inputs", "outputs", "opened?",)
+    print "Inputs:"
+    for dev in range(pypm.CountDevices()):
+        if pypm.GetDeviceInfo(dev)[2] > 0:
+            print dev, pypm.GetDeviceInfo(dev)
+    print "Outputs:"
+    for dev in range(pypm.CountDevices()):
+        if pypm.GetDeviceInfo(dev)[3] > 0:
+            print dev, pypm.GetDeviceInfo(dev)
+    sys.exit(0)
+
+midi_in = pypm.Input(int(sys.argv[1]), 0)
+midi_out = pypm.Output(int(sys.argv[2]), 0)
+
+view = EditorView()
+rack_attack = RackAttack(midi_in, midi_out)
+
+editor = Editor(rack_attack, view)
+editor.run()
+
+#print "Loading..."
+
+#rack_attack.get_program().get_sound(0).change_param("Osc2_Shape", int(sys.argv[3]))
+#rack_attack.load_program_from_device()
+#rack_attack.print_state()
+#time.sleep(3)
+#print "Loaded! Changing param..."
+#rack_attack.get_program().get_sound(0).change_param("Osc1_Shape", "Noise")
+#time.sleep(1)
+#rack_attack.get_program().get_sound(0).change_param("Osc2_Shape", "Noise")
+#print "Changed."
+
+#rack_attack.load_program_from_device()
+#rack_attack.print_state()
+
+
+del midi_in
+del midi_out
+pypm.Terminate()
