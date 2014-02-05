@@ -67,26 +67,26 @@ SDAT = [ # Sound data
     ("Osc1_Shape",                  0x00, 0x01, ("Triangle", "Sine", "Square", "Saw", "S&H", "Noise", "HH Closed", "HH Open", "Crash", "Ext L", "Ext R", "Ext Mono", ), ),
     ("Osc1_Pitch",                  0x00, 0x02,),
     ("Osc1_Detune",                 0x00, 0x03,),
-    ("Osc1_Start_Phase",            0x00, 0x04,),
+    ("Osc1_Start_Phase",            0x00, 0x04, ("Peak+", "Peak-", "Zero", "Free", ), ),
     ("Osc1_Pitch_Mod",              0x00, 0x05,),
     ("Osc1_Pitch_Ctrl",             0x00, 0x06,),
-    ("Osc1_Pitch_Mod_Src",          0x00, 0x07,),
-    ("Osc1_Pitch_Ctrl_Src",         0x00, 0x08,),
+    ("Osc1_Pitch_Mod_Src",          0x00, 0x07, ("Env1", "Env2", "LFO1", "LFO2", ), ),
+    ("Osc1_Pitch_Ctrl_Src",         0x00, 0x08, ("Velocity", "Modwheel", "Pressure", "Breath", "Foot", "Keytrack", ), ),
     ("Osc1_FM_Depth",               0x00, 0x09,),
     ("Osc1_FM_Mod",                 0x00, 0x0a,),
     ("Osc1_FM_Ctrl",                0x00, 0x0b,),
-    ("Osc1_FM_Mod_Src",             0x00, 0x0c,),
-    ("Osc1_FM_Ctrl_Src",            0x00, 0x0d,),
+    ("Osc1_FM_Mod_Src",             0x00, 0x0c, ("Env1", "Env2", "LFO1", "LFO2", ), ),
+    ("Osc1_FM_Ctrl_Src",            0x00, 0x0d, ("Velocity", "Modwheel", "Pressure", "Breath", "Foot", "Keytrack", ), ),
     None,
     None,
     ("Osc2_Shape",                  0x00, 0x10, ("Triangle", "Sine", "Square", "Saw", "S&H", "Noise", "HH Closed", "HH Open", "Crash", "Ext L", "Ext R", "Ext Mono", ), ),
     ("Osc2_Pitch",                  0x00, 0x11,),
     ("Osc2_Detune",                 0x00, 0x12,),
-    ("Osc2_Start_Phase",            0x00, 0x13,),
+    ("Osc2_Start_Phase",            0x00, 0x13, ("Peak+", "Peak-", "Zero", "Free", ), ),
     ("Osc2_Pitch_Mod",              0x00, 0x14,),
     ("Osc2_Pitch_Ctrl",             0x00, 0x15,),
-    ("Osc2_Pitch_Mod_Src",          0x00, 0x16,),
-    ("Osc2_Pitch_Ctrl_Src",         0x00, 0x17,),
+    ("Osc2_Pitch_Mod_Src",          0x00, 0x16, ("Env1", "Env2", "LFO1", "LFO2", ), ),
+    ("Osc2_Pitch_Ctrl_Src",         0x00, 0x17, ("Velocity", "Modwheel", "Pressure", "Breath", "Foot", "Keytrack", ), ),
     None,
     None,
     # Mixer
@@ -96,40 +96,40 @@ SDAT = [ # Sound data
     ("Crack_Level",                 0x00, 0x1d,),
     ("Osc2_Level_Mod",              0x00, 0x1e,),
     ("Osc2_Level_Ctrl",             0x00, 0x1f,),
-    ("Osc2_Level_Mod_Src",          0x00, 0x20,),
-    ("Osc2_Level_Ctrl_Src",         0x00, 0x21,),
+    ("Osc2_Level_Mod_Src",          0x00, 0x20, ("Env1", "Env2", "LFO1", "LFO2", ), ),
+    ("Osc2_Level_Ctrl_Src",         0x00, 0x21, ("Velocity", "Modwheel", "Pressure", "Breath", "Foot", "Keytrack", ), ),
     None,
     None,
     # Crack generator
     ("Crack_Speed",                 0x00, 0x24,),
     ("Crack_Length",                0x00, 0x25,),
     # Filter
-    ("Filter_Type",                 0x00, 0x26,),
+    ("Filter_Type",                 0x00, 0x26, ("Bypass", "Low", "Band", "High", "Notch", "Shelf", "Bell", "S&H"), ),
     ("Filter_Cutoff",               0x00, 0x27,),
     ("Filter_Res",                  0x00, 0x28,),
     ("Filter_Drive",                0x00, 0x29,),
     ("Filter_KeyTrack",             0x00, 0x2a,),
     ("Filter_Cutoff_Mod_1",         0x00, 0x2b,),
     ("Filter_Cutoff_Ctrl_1",        0x00, 0x2c,),
-    ("Filter_Cutoff_Mod_1_Src",     0x00, 0x2d,),
-    ("Filter_Cutoff_Ctrl_1_Src",    0x00, 0x2e,),
+    ("Filter_Cutoff_Mod_1_Src",     0x00, 0x2d, ("Env1", "Env2", "LFO1", "LFO2", ), ),
+    ("Filter_Cutoff_Ctrl_1_Src",    0x00, 0x2e, ("Velocity", "Modwheel", "Pressure", "Breath", "Foot", "Keytrack", ), ),
     ("Filter_Cutoff_Mod_2",         0x00, 0x2f,),
     ("Filter_Cutoff_Ctrl_2",        0x00, 0x30,),
-    ("Filter_Cutoff_Mod_2_Src",     0x00, 0x31,),
-    ("Filter_Cutoff_Ctrl_2_Src",    0x00, 0x32,),
+    ("Filter_Cutoff_Mod_2_Src",     0x00, 0x31, ("Env1", "Env2", "LFO1", "LFO2", ), ),
+    ("Filter_Cutoff_Ctrl_2_Src",    0x00, 0x32, ("Velocity", "Modwheel", "Pressure", "Breath", "Foot", "Keytrack", ), ),
     None,
     None,
     # Amplifier
     ("Amp_Volume",                  0x00, 0x35,),
     ("Amp_Volume_Mod",              0x00, 0x36,),
     ("Amp_Volume_Ctrl",             0x00, 0x37,),
-    ("Amp_Volume_Mod_Src",          0x00, 0x38,),
-    ("Amp_Volume_Ctrl_Src",         0x00, 0x39,),
+    ("Amp_Volume_Mod_Src",          0x00, 0x38, ("Env1", "Env2", "LFO1", "LFO2", ), ),
+    ("Amp_Volume_Ctrl_Src",         0x00, 0x39, ("Velocity", "Modwheel", "Pressure", "Breath", "Foot", "Keytrack", ), ),
     ("Amp_Pan",                     0x00, 0x3a,),
     ("Amp_Pan_Mod",                 0x00, 0x3b,),
     ("Amp_Pan_Ctrl",                0x00, 0x3c,),
-    ("Amp_Pan_Mod_Src",             0x00, 0x3d,),
-    ("Amp_Pan_Ctrl_Src",            0x00, 0x3e,),
+    ("Amp_Pan_Mod_Src",             0x00, 0x3d, ("Env1", "Env2", "LFO1", "LFO2", ), ),
+    ("Amp_Pan_Ctrl_Src",            0x00, 0x3e, ("Velocity", "Modwheel", "Pressure", "Breath", "Foot", "Keytrack", ), ),
     # Envelopes
     ("Env1_Attack",                 0x00, 0x3f,),
     ("Env1_Decay",                  0x00, 0x40,),
@@ -145,26 +145,26 @@ SDAT = [ # Sound data
     None,
     # LFOs
     ("LFO1_Speed",                  0x00, 0x4b,),
-    ("LFO1_Shape",                  0x00, 0x4c,),
-    ("LFO1_Sync",                   0x00, 0x4d,),
-    ("LFO1_OneShot",                0x00, 0x4e,),
+    ("LFO1_Shape",                  0x00, 0x4c, ("Sine", "Triangle", "Square", "Saw", "Random", "S&H", ), ),
+    ("LFO1_Sync",                   0x00, 0x4d, ("Off", "Key", "8 bars", "4 bars", "2 bars", "1 bar", "1/2", "1/4", "1/8", "1/16", "1/32", "1/64", "1/2.", "1/4.", "1/8.", "1/16.", "1/32.", "1/64.", "1/2t", "1/4t", "1/8t", "1/16t", "1/32t", "1/64t", ), ),
+    ("LFO1_OneShot",                0x00, 0x4e, ("Off", "On", ), ),
     ("LFO2_Speed",                  0x00, 0x4f,),
-    ("LFO2_Shape",                  0x00, 0x50,),
-    ("LFO2_Sync",                   0x00, 0x51,),
+    ("LFO2_Shape",                  0x00, 0x50, ("Sine", "Triangle", "Square", "Saw", "Random", "S&H", ), ),
+    ("LFO2_Sync",                   0x00, 0x51, ("Off", "Key", "8 bars", "4 bars", "2 bars", "1 bar", "1/2", "1/4", "1/8", "1/16", "1/32", "1/64", "1/2.", "1/4.", "1/8.", "1/16.", "1/32.", "1/64.", "1/2t", "1/4t", "1/8t", "1/16t", "1/32t", "1/64t", ), ),
     ("LFO2_Mod",                    0x00, 0x52,),
-    ("LFO2_Mod_Src",                0x00, 0x53,),
+    ("LFO2_Mod_Src",                0x00, 0x53, ("Env1", "Env2", "LFO1", "LFO2", ), ),
     None,
     # Output
-    ("Dry_Output",                  0x00, 0x55,),
-    ("FX_Select",                   0x00, 0x56,),
+    ("Dry_Output",                  0x00, 0x55, ("Mono 1", "Stereo 1/2", "Mono 2", "Mono 3", "Stereo 3/4", "Mono 4", "Mono 5", "Stereo 5/6", "Mono 6", ), ),
+    ("FX_Select",                   0x00, 0x56, ("FX1", "FX2", "FX3", "FX4", ), ),
     ("FX_Send_Mix",                 0x00, 0x57,),
-    ("Tuned_Channel",               0x00, 0x58,),
+    ("Tuned_Channel",               0x00, 0x58, ("Off", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "Global", ), ),
     ("Tuned_Transpose",             0x00, 0x59,),
     ("Tuned_LowKey",                0x00, 0x5a,),
     ("Tuned_HighKey",               0x00, 0x5b,),
     None,
     None,
-    ("XOR_Group",                   0x00, 0x5e,),
+    ("XOR_Group",                   0x00, 0x5e, ("Off", "1", "2", "3", ), ),
     None,
     None,
     None,
@@ -178,7 +178,7 @@ SDAT = [ # Sound data
     None,
     None,
     None,
-    ("Pattern_Mode",                0x00, 0x6c,),
+    ("Pattern_Mode",                0x00, 0x6c, ("Off", "On", "Latch", "Toggle", "OneShot", ), ),
 ]
 FDAT = [ # Effect data
     ("Type",                        0x00, 0x00, ("Bypass", "Chorus", "Flanger", "Phaser", "Overdrive", "Delay", "ModDelay", "Reverb", "LoFi", ), ),
@@ -211,6 +211,7 @@ class RackAttack:
         self.gdat = {}
         self.init_to_zero()
     def init_to_zero(self):
+        """Init local representation to zero."""
         self.gdat = parse_dat([0] * GDAT_LEN, GDAT)
         self.program.load_from_dump([0] * KDAT_LEN)
         for i in range(24):
@@ -222,14 +223,16 @@ class RackAttack:
         prgn = 0x00
         bufn = 0x20
         if program >= 1 and program <= 50:
+            # Change program
             prgn = program
-            bufn = 0x20
+            self.midi_out.WriteShort(0xc0, prgn - 1, 0) # Rx PrgChg must be ON
+            time.sleep(0.1)
         # Global
         self.send_sysex([0x04, 0x00]) # GLBR GLBN
         gbytes = self.receive_sysex(2 + GDAT_LEN)
         self.gdat = parse_dat(gbytes[2:], GDAT)
         # Program
-        self.send_sysex([0x01, prgn, bufn]) # PRGR BUFN PRGN
+        self.send_sysex([0x01, prgn, bufn]) # PRGR PRGN BUFN
         kbytes = self.receive_sysex(3 + KDAT_LEN)
         self.program.load_from_dump(kbytes[3:])
         # Sounds

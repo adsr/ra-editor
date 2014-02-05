@@ -17,4 +17,5 @@ class Editor:
         print num
 
     def edit_sound(self, cur_sound, param, *L):
+        self.rack_attack.get_program().get_sound(cur_sound).change_param(param, int(L[0]))
         print cur_sound, param, L
