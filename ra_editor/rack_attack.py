@@ -195,6 +195,10 @@ FDAT = [ # Effect data
     ("Param10",                     0x00, 0x0b, ),
     ("Param11",                     0x00, 0x0c, ),
 ]
+GDAT_LEN = 199
+KDAT_LEN = 40
+SDAT_LEN = 109
+FDAT_LEN = 18
 
 class RackAttack:
     """A Waldorf RackAttack MIDI controller."""
@@ -205,7 +209,15 @@ class RackAttack:
         self.midi_out = midi_out
         self.program = Program(self)
         self.gdat = {}
-    def load_program_from_device(self, program=0):
+        self.init_to_zero()
+    def init_to_zero(self):
+        self.gdat = parse_dat([0] * GDAT_LEN, GDAT)
+        self.program.load_from_dump([0] * KDAT_LEN)
+        for i in range(24):
+            self.program.get_sound(i).load_from_dump([0] * SDAT_LEN)
+        for i in range(4):
+            self.program.get_effect(i).load_from_dump([0] * FDAT_LEN)
+    def load_from_device(self, program=0):
         """Load local program from device."""
         prgn = 0x00
         bufn = 0x20
@@ -214,21 +226,21 @@ class RackAttack:
             bufn = 0x20
         # Global
         self.send_sysex([0x04, 0x00]) # GLBR GLBN
-        gbytes = self.receive_sysex(2 + 199)
+        gbytes = self.receive_sysex(2 + GDAT_LEN)
         self.gdat = parse_dat(gbytes[2:], GDAT)
         # Program
         self.send_sysex([0x01, prgn, bufn]) # PRGR BUFN PRGN
-        kbytes = self.receive_sysex(3 + 40)
+        kbytes = self.receive_sysex(3 + KDAT_LEN)
         self.program.load_from_dump(kbytes[3:])
         # Sounds
         for i in range(24):
             self.send_sysex([0x00, bufn, i]) # SNDR BUFN SNDN
-            sbytes = self.receive_sysex(3 + 109)
+            sbytes = self.receive_sysex(3 + SDAT_LEN)
             self.program.get_sound(i).load_from_dump(sbytes[3:])
         # Effects
         for i in range(4):
             self.send_sysex([0x05, bufn, i]) # EFXR BUFN EFXN
-            fbytes = self.receive_sysex(3 + 18)
+            fbytes = self.receive_sysex(3 + FDAT_LEN)
             self.program.get_effect(i).load_from_dump(fbytes[3:])
     def change_param(self, param_name, value, do_send_sysex=True):
         """Change GLB param `param_name` to `value`."""
@@ -301,7 +313,7 @@ class RackAttack:
         state["FDAT"] = []
         for effect in self.program.effects:
             state["FDAT"].append(effect.fdat)
-        return satate
+        return state
     def print_state(self):
         """Print the local representation of the RackAttack to stdout."""
         pp = pprint.PrettyPrinter(indent=4)

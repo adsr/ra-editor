@@ -7,8 +7,10 @@ class EditorView(tk.Frame):
     def __init__(self, master=None):
         self.editor = None
         self.master = master
-        self.cur_sound_num = 1
+        self.cur_sound = 0
+        self.cur_effect = 0
         self.state = None
+        self.params_widgets = None
 
     def set_observer(self, editor):
         self.editor = editor
@@ -52,10 +54,12 @@ class EditorView(tk.Frame):
         cutoffs = [21, 23, 20]
         default_cutoff = 20
         cutoff_i = 0
+        def make_param_widget(stuple, frame, row, col):
+            self.params_widgets[stuple[0]] = ScaleEx(frame, stuple, command=lambda *L: self.edit_sound_param(stuple[0], *L))
+            self.params_widgets[stuple[0]].grid(row=row, column=col, sticky=tk.W)
         for stuple in rack_attack.SDAT:
             if stuple:
-                constraint = stuple[3] if len(stuple) > 3 else [0, 127]
-                self.params_widgets[stuple[0]] = ScaleEx(frame, stuple, command=self.editor.edit_sound).grid(row=row, column=col, sticky=tk.W)
+                make_param_widget(stuple, frame, row, col)
                 row += 1
                 if row >= (cutoffs[cutoff_i] if cutoff_i < len(cutoffs) else default_cutoff):
                     row = 0
@@ -75,19 +79,29 @@ class EditorView(tk.Frame):
         self.editor.store_program(num)
 
     def switch_sound(self, *L):
-        self.cur_sound_num = int(L[0])
-        self.set_sound(self.cur_sound_num)
+        self.cur_sound = int(L[0]) - 1
+        self.update_widgets_from_state(self.cur_sound)
 
-    def update_state(self, state):
+    def set_state(self, state):
         self.state = state
-        self.set_sound(self.cur_sound_num)
+        if self.params_widgets:
+            self.update_widgets_from_state(self.cur_sound)
 
-    def set_sound(self, sound_num):
-        sound_num -= 1
-        if not "SDAT" in self.stat:
-            return
+    def edit_sound_param(self, param, *L):
+        self.state["SDAT"][self.cur_sound][param] = int(L[0])
+        self.editor.edit_sound(self.cur_sound, param, *L)
+
+    def update_widgets_from_state(self, sound_num):
         for param in self.state["SDAT"][sound_num]:
-            self.params_widgets[param].set_value(self.state["SDAT"][sound_num][param])
+            # Set values, preventing event callbacks
+            scale_widget = self.params_widgets[param]
+            scale_widget.set_noop_command(True)
+            scale_widget.set_value(self.state["SDAT"][sound_num][param])
+        self.update() # Process events
+        for param in self.state["SDAT"][sound_num]:
+            # Re-enable callbacks
+            scale_widget = self.params_widgets[param]
+            scale_widget.set_noop_command(False)
 
 class ScaleEx:
     def __init__(self, parent, stuple, command=None):
@@ -96,7 +110,10 @@ class ScaleEx:
         self.display_value_var = tk.StringVar()
         self.constraint = constraint
         self.command = command
+        self.param_name = stuple[0]
         self.schema_tuple = stuple
+        self.first_set_value = True
+        self.noop_command = False
         if isinstance(constraint, list):
             scale_from = constraint[0]
             scale_to = constraint[1]
@@ -120,9 +137,14 @@ class ScaleEx:
         self.scale.grid(row=0, column=1, sticky=tk.W)
         self.display_value.grid(row=0, column=2, sticky=tk.W)
 
+    def set_noop_command(self, tf):
+        self.noop_command = tf
+
     def handle_command(self, *L):
         self.display_value_var.set(self.get_display_value())
-        if self.command:
+        if self.first_set_value:
+            self.first_set_value = False
+        elif self.command and not self.noop_command:
             self.command(*L)
 
     def get_display_value(self):
