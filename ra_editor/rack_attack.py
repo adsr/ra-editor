@@ -360,7 +360,7 @@ class Program:
         if do_send_sysex:
             self.rack_attack.send_sysex([
                 # PRGP PRGN PAH PAL PRGV
-                0x21, 0x20, pah, pal, self.fdat[param_name]
+                0x21, 0x20, pah, pal, self.kdat[param_name]
             ])
     def get_param(self, param_name):
         """Return local value for `param_name`."""
