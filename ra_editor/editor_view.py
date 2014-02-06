@@ -10,8 +10,9 @@ CHORDS = [
     ("Aug", [0,4,8]),
     ("Dim", [0,3,6]),
     ("Sus4", [0,5,7]),
-    ("Sus2", [0,2,7]),
 ]
+
+NOTES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
 
 class EditorView(tk.Frame):
 
@@ -24,6 +25,10 @@ class EditorView(tk.Frame):
         self.program_name = None
         self.initialized = False
         self.ignore_events = False
+        self.play_channel = 0
+        self.play_octave = 0
+        self.play_add_tone = False
+        self.play_velocity_fn = lambda: 100
 
     def set_observer(self, editor):
         self.editor = editor
@@ -63,9 +68,10 @@ class EditorView(tk.Frame):
         tk.Label(frame, text="Program").grid(row=0, column=0, sticky=tk.E)
         tk.Button(frame, text="Load...", command=self.load_program).grid(row=0, column=1, sticky=tk.W)
         tk.Button(frame, text="Store...", command=self.store_program).grid(row=0, column=2, sticky=tk.W)
+        tk.Button(frame, text="Init...", command=self.init_program).grid(row=0, column=3, sticky=tk.W)
         tk.Label(frame, text="Name").grid(row=1, column=0, sticky=tk.E)
         self.program_name = tk.StringVar()
-        tk.Entry(frame, textvariable=self.program_name).grid(row=1, column=1, columnspan=2, sticky=tk.W)
+        tk.Entry(frame, textvariable=self.program_name).grid(row=1, column=1, columnspan=3, sticky=tk.W)
         self.program_name.trace("w", lambda name, index, mode: self.edit_program_name())
 
     def create_select_widgets(self, frame, caption, num, fn):
@@ -91,29 +97,74 @@ class EditorView(tk.Frame):
                     cutoff_i += 1
 
     def create_keyboard_widgets(self, frame):
-        ScaleEx(self, frame, ("Channel", None, None, [1, 16], ), command=None).grid(row=0, sticky=tk.W)
-        ScaleEx(self, frame, ("Octave", None, None, [-1, 8], ), command=None).grid(row=1, sticky=tk.W)
-        ScaleEx(self, frame, ("Velocity", None, None, ("Normal", "Lo", "Hi", "Random", ), ), command=None).grid(row=2, sticky=tk.W)
-        ScaleEx(self, frame, ("Add tone", None, None, ("Off", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", ), ), command=None).grid(row=3, sticky=tk.W)
-        notes = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
+        ScaleEx(self, frame, ("Channel", None, None, [1, 16], ), command=self.set_channel).grid(row=0, sticky=tk.W)
+        ScaleEx(self, frame, ("Octave", None, None, [-1, 8], ), command=self.set_octave).grid(row=1, sticky=tk.W)
+        ScaleEx(self, frame, ("Velocity", None, None, ("Normal", "Lo", "Hi", "Random", ), ), command=self.set_velocity).grid(row=2, sticky=tk.W)
+        ScaleEx(self, frame, ("Add tone", None, None, ("Off", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", ), ), command=self.set_add_tone).grid(row=3, sticky=tk.W)
         col = 1
         small_font = tkfont.Font(family="TkDefaultFont", size=6)
-        for note in range(11):
+        def make_note_button(caption, note, pitches, row, col):
+            btn = tk.Button(frame, text=caption, height=1, font=small_font)
+            btn.bind("<Button-1>", lambda e: self.play_notes(note, pitches, e))
+            btn.bind("<ButtonRelease-1>", lambda e: self.play_notes(note, pitches, e, off=True))
+            btn.grid(row=row, column=col, sticky=tk.W)
+        for note in range(len(NOTES)):
             row = 0
             for chord in CHORDS:
                 name, pitches = chord
-                tk.Button(frame, text=notes[note] + " " + name, height=1, font=small_font, command=None).grid(row=row, column=col, sticky=tk.W)
+                make_note_button(NOTES[note] + " " + name, note, pitches, row, col)
                 row += 1
             col += 1
 
+    def set_channel(self, *L):
+        self.play_channel = int(L[0]) - 1
+
+    def set_octave(self, *L):
+        self.play_octave = int(L[0])
+
+    def set_velocity(self, *L):
+        vel = int(L[0])
+        if vel == 0:
+            self.play_velocity_fn = lambda: 100
+        elif vel == 1:
+            self.play_velocity_fn = lambda: 30
+        elif vel == 2:
+            self.play_velocity_fn = lambda: 127
+        else:
+            self.play_velocity_fn = lambda: random.randint(1, 127)
+
+    def set_add_tone(self, *L):
+        tone = int(L[0])
+        if tone == 0:
+            self.play_add_tone = None
+        else:
+            self.play_add_tone = tone
+
+    def play_notes(self, note, pitches, event, off=False):
+        msgs = []
+        root = note + ((self.play_octave + 1) * 12)
+        vel = 0 if off else self.play_velocity_fn()
+        cmd = (0x80 if off else 0x90) + self.play_channel
+        for p in pitches:
+            msgs.append((cmd, root + p, vel, ))
+        if self.play_add_tone:
+            msgs.append((cmd, root + self.play_add_tone, vel, ))
+        self.editor.send_midi(msgs)
+
+    def init_program(self):
+        ig = tkdialog.askstring("Init current program on RackAttack", "Confirm by clicking OK.")
+        if ig is None:
+            return
+        self.editor.init_current_program()
+
     def load_program(self):
-        num = tkdialog.askinteger("Load program", "Enter program number (1-50) or 0 for current.")
+        num = tkdialog.askinteger("Load program from RackAttack", "Enter program number (1-50) or 0 for current.")
         if num is None:
             return
         self.editor.load_program(num)
 
     def store_program(self):
-        num = tkdialog.askinteger("Store program", "Enter program number (1-50) or 0 for current.")
+        num = tkdialog.askinteger("Store program on RackAttack", "Enter program number (1-50) or 0 for current.")
         if num is None:
             return
         self.editor.store_program(num)
@@ -153,7 +204,10 @@ class EditorView(tk.Frame):
     def select_item(self, item_group, *L):
         num = int(L[0]) - 1
         item_group.cur_item = num
+        self.ignore_events = True
         self.update_widgets(item_group)
+        self.update()
+        self.ignore_events = False
 
     def edit_item_param(self, item_group, param, *L):
         num = item_group.cur_item

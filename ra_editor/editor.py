@@ -14,7 +14,11 @@ class Editor:
         self.editor_view.set_state(self.rack_attack.get_state())
 
     def store_program(self, num):
-        print num
+        print "TODO"
+
+    def init_current_program(self):
+        self.rack_attack.init_current_program()
+        self.editor_view.set_state(self.rack_attack.get_state())
 
     def edit_sound(self, cur_sound, param, *L):
         self.rack_attack.get_program().get_sound(cur_sound).change_param(param, int(L[0]))
@@ -26,3 +30,6 @@ class Editor:
 
     def edit_program_name(self, name):
         self.rack_attack.get_program().change_name(name)
+
+    def send_midi(self, msgs):
+        self.rack_attack.send_midi(msgs)

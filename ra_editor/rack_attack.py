@@ -218,6 +218,12 @@ class RackAttack:
             self.program.get_sound(i).load_from_dump([0] * SDAT_LEN)
         for i in range(4):
             self.program.get_effect(i).load_from_dump([0] * FDAT_LEN)
+    def init_current_program(self):
+        """Init current program on device."""
+        self.send_sysex([0x07, 0x04, 0x20, 0x00]) # MODR MCMD MOV1 MOV2
+        time.sleep(0.1)
+        self.load_from_device()
+
     def load_from_device(self, program=0):
         """Load local program from device."""
         prgn = 0x00
@@ -259,6 +265,11 @@ class RackAttack:
     def get_program(self):
         """Return `Program` instance."""
         return self.program
+    def send_midi(self, msgs):
+        """Send MIDI in `msgs`."""
+        for msg in msgs:
+            cmd, b1, b2 = msg
+            self.midi_out.WriteShort(cmd, b1, b2)
     def send_sysex(self, bytes, do_flush_hack=False):
         """Send a sysex message to the RackAttack."""
         msg = []
@@ -350,10 +361,10 @@ class Program:
             self.name += chr(self.kdat["Name_" + str(i)])
     def change_name(self, name):
         """Change name of program."""
-        name = "'%-16s'" % name
+        name = "%-16s" % name
         self.name = name[0:16]
         for i in range(16):
-            self.change_param("Name_" + str(i), self.name[i:i+1])
+            self.change_param("Name_" + str(i), ord(self.name[i:i+1]))
     def change_param(self, param_name, value, do_send_sysex=True):
         """Change PRG param `param_name` to `value`."""
         (pah, pal) = change_dat_param(KDAT, self.kdat, param_name, value)
