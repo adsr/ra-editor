@@ -1,5 +1,11 @@
 #!/usr/bin/python
 
+""" TODO
+* Find and fix broken param codes.
+* Make spacebar play note N for length L (configurable).
+* Work on store_program_on_device
+"""
+
 import sys
 import os
 import pypm

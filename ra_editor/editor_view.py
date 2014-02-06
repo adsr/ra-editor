@@ -1,3 +1,4 @@
+import random
 import rack_attack
 import Tkinter as tk
 import tkSimpleDialog as tkdialog
