@@ -4,16 +4,14 @@ import Tkinter as tk
 import tkSimpleDialog as tkdialog
 import tkFont as tkfont
 
-CHORDS = [
-    ("Root", [0]),
-    ("Maj", [0,4,7]),
-    ("Min", [0,3,7]),
-    ("Aug", [0,4,8]),
-    ("Dim", [0,3,6]),
-    ("Sus4", [0,5,7]),
-]
-
 NOTES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
+FIFTHS = [0, 7, 2, 9, 4, 11, 6, 1, 8, 3, 10, 5]
+RELATED_MAJ = [-1, 1]
+RELATED_MIN = [2, 4]
+PITCHES_MAJ = [0, 4, 7, 11]
+PITCHES_MIN = [0, 3, 7, 10]
+PITCHES_SUS4 = [0, 5, 7]
+ADD_TONES = [i for i in range(-24, 0)] + [i for i in range(1, 25)]
 
 class EditorView(tk.Frame):
 
@@ -27,7 +25,7 @@ class EditorView(tk.Frame):
         self.initialized = False
         self.ignore_events = False
         self.play_channel = 0
-        self.play_octave = 0
+        self.play_octave = 4
         self.play_add_tone = False
         self.play_velocity_fn = lambda: 100
 
@@ -99,9 +97,11 @@ class EditorView(tk.Frame):
 
     def create_keyboard_widgets(self, frame):
         ScaleEx(self, frame, ("Channel", None, None, [1, 16], ), command=self.set_channel).grid(row=0, sticky=tk.W)
-        ScaleEx(self, frame, ("Octave", None, None, [-1, 8], ), command=self.set_octave).grid(row=1, sticky=tk.W)
+        octave_widget = ScaleEx(self, frame, ("Octave", None, None, [-1, 8], ), command=self.set_octave)
+        octave_widget.set_value(self.play_octave)
+        octave_widget.grid(row=1, sticky=tk.W)
         ScaleEx(self, frame, ("Velocity", None, None, ("Normal", "Lo", "Hi", "Random", ), ), command=self.set_velocity).grid(row=2, sticky=tk.W)
-        ScaleEx(self, frame, ("Add tone", None, None, ("Off", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", ), ), command=self.set_add_tone).grid(row=3, sticky=tk.W)
+        ScaleEx(self, frame, ("Add tone", None, None, tuple(["Off"] + [str(i) for i in ADD_TONES]), ), command=self.set_add_tone).grid(row=3, sticky=tk.W)
         col = 1
         small_font = tkfont.Font(family="TkDefaultFont", size=6)
         def make_note_button(caption, note, pitches, row, col):
@@ -109,12 +109,25 @@ class EditorView(tk.Frame):
             btn.bind("<Button-1>", lambda e: self.play_notes(note, pitches, e))
             btn.bind("<ButtonRelease-1>", lambda e: self.play_notes(note, pitches, e, off=True))
             btn.grid(row=row, column=col, sticky=tk.W)
-        for note in range(len(NOTES)):
+        for fifth_i in range(len(FIFTHS)):
+            note = FIFTHS[fifth_i]
             row = 0
-            for chord in CHORDS:
-                name, pitches = chord
-                make_note_button(NOTES[note] + " " + name, note, pitches, row, col)
+            note_name = NOTES[note]
+            make_note_button(note_name, note, [0], row, col)
+            row += 1
+            make_note_button(note_name + "maj", note, PITCHES_MAJ, row, col)
+            row += 1
+            for delta in RELATED_MAJ:
+                rel_i = (fifth_i + delta) % 12
+                make_note_button(NOTES[FIFTHS[rel_i]] + "maj", FIFTHS[rel_i], PITCHES_MAJ, row, col)
                 row += 1
+            for delta in RELATED_MIN:
+                rel_i = (fifth_i + delta) % 12
+                make_note_button(NOTES[FIFTHS[rel_i]] + "min", FIFTHS[rel_i], PITCHES_MIN, row, col)
+                row += 1
+            make_note_button(note_name + "sus4", note, PITCHES_SUS4, row, col)
+            row += 1
+            make_note_button(note_name + "min", note, PITCHES_MIN, row, col)
             col += 1
 
     def set_channel(self, *L):
@@ -135,11 +148,11 @@ class EditorView(tk.Frame):
             self.play_velocity_fn = lambda: random.randint(1, 127)
 
     def set_add_tone(self, *L):
-        tone = int(L[0])
-        if tone == 0:
+        val = int(L[0])
+        if val == 0:
             self.play_add_tone = None
         else:
-            self.play_add_tone = tone
+            self.play_add_tone = ADD_TONES[val - 1]
 
     def play_notes(self, note, pitches, event, off=False):
         msgs = []
@@ -178,6 +191,7 @@ class EditorView(tk.Frame):
         self.update_widgets(self.sound_group)
         self.update_widgets(self.effect_group)
         self.update_program_name()
+        self.update_effect_labels()
         self.update()
         self.ignore_events = False
 
@@ -207,6 +221,7 @@ class EditorView(tk.Frame):
         item_group.cur_item = num
         self.ignore_events = True
         self.update_widgets(item_group)
+        self.update_effect_labels()
         self.update()
         self.ignore_events = False
 
@@ -217,6 +232,16 @@ class EditorView(tk.Frame):
             self.editor.edit_sound(num, param, *L)
         else:
             self.editor.edit_effect(num, param, *L)
+            if param == "Type":
+                self.update_effect_labels()
+
+    def update_effect_labels(self):
+        fx_num = int(self.state[self.effect_group.dat_key][self.effect_group.cur_item]["Type"])
+        param_num = 1
+        for label in rack_attack.FPARAMS[fx_num]:
+            label_text = label if label else "N/A"
+            self.effect_group.widgets["Param" + str(param_num)].set_label(label_text)
+            param_num += 1
 
 class ScaleEx:
     def __init__(self, editor_view, parent, stuple, command=None):
@@ -224,6 +249,7 @@ class ScaleEx:
         self.editor_view = editor_view
         constraint = stuple[3] if len(stuple) > 3 else [0, 127]
         self.display_value_var = tk.StringVar()
+        self.label_value_var = tk.StringVar()
         self.constraint = constraint
         self.command = command
         self.param_name = stuple[0]
@@ -245,7 +271,8 @@ class ScaleEx:
             "command": self.handle_command,
             "showvalue": 0,
         }
-        self.label = tk.Label(self.frame, text=stuple[0], width=18, height=1, anchor=tk.SE)
+        self.label_value_var.set(stuple[0])
+        self.label = tk.Label(self.frame, textvariable=self.label_value_var, width=18, height=1, anchor=tk.SE)
         self.scale = tk.Scale(self.frame, **scale_kwargs)
         self.display_value = tk.Label(self.frame, textvariable=self.display_value_var, width=8)
         self.label.grid(row=0, column=0, sticky=tk.W)
@@ -271,6 +298,9 @@ class ScaleEx:
 
     def set_value(self, val):
         self.scale.set(val)
+
+    def set_label(self, val):
+        self.label_value_var.set(val)
 
     def __getattr__(self, attr):
         def default_method(*args, **kwargs):

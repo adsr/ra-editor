@@ -22,11 +22,9 @@ class Editor:
 
     def edit_sound(self, cur_sound, param, *L):
         self.rack_attack.get_program().get_sound(cur_sound).change_param(param, int(L[0]))
-        print cur_sound, param, L
 
     def edit_effect(self, cur_effect, param, *L):
         self.rack_attack.get_program().get_effect(cur_effect).change_param(param, int(L[0]))
-        print cur_effect, param, L
 
     def edit_program_name(self, name):
         self.rack_attack.get_program().change_name(name)

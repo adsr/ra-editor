@@ -195,6 +195,17 @@ FDAT = [ # Effect data
     ("Param10",                     0x00, 0x0b, ),
     ("Param11",                     0x00, 0x0c, ),
 ]
+FPARAMS = [
+    [ "Param1",    "Param2",    "Param3",    "Param4",    "Param5",    "Param6",    "Param7",    "Param8",    "Param9",    "Param10",    "Param11" ],
+    [ "Speed",     "Depth",     None,        "Delay",     None,        None,        None,        None,        None,        None,         None ],
+    [ "Speed",     "Depth",     None,        None,        "Feedback",  None,        None,        None,        "Polarity",  None,         None ],
+    [ "Speed",     "Depth",     None,        None,        "Feedback",  "Center",    "Spacing",   None,        "Polarity",  None,         None ],
+    [ None,        "Drive",    "PostGain",   None,        None,        "Cutoff",    None,        None,        None,        None,         None ],
+    [ None,        None,        None,        "Length",    "Feedback",  "Cutoff",    None,        None,        "Polarity",  "AutoPan",    "Sync" ],
+    [ "Speed",     "Depth",     "Sync",      "Length",    "Feedback",  "LoCut",     "HiCut",     "Spread",    None,        None,         None ],
+    [ "Size",      "Shape",     "Decay",     "PreDelay",  None,        "LoCut",     "HiCut",     None,        "Diffusion", "Damping",    None ],
+    [ None,        None,        None,        None,        "S&H_Rate",  "Drive",     "Gain",      None,        None,        None,         None ],
+]
 GDAT_LEN = 199
 KDAT_LEN = 40
 SDAT_LEN = 109
